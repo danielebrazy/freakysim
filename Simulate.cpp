@@ -1,11 +1,11 @@
 #include "Particle.h"
 #include <cmath>
 
-#include "/home/danielebrazy/root/include/TCanvas.h"
-#include "/home/danielebrazy/root/include/TFile.h"
-#include "/home/danielebrazy/root/include/TH1.h"
-#include "/home/danielebrazy/root/include/TH2.h"
-#include "/home/danielebrazy/root/include/TRandom3.h"
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TRandom3.h"
 
 // defining the mass of every particle type
 double mPion{0.13957};
@@ -15,7 +15,7 @@ double mKstar{0.89166};
 // defining K* width
 double wKstar{0.05};
 
-void amogus()
+void simulate()
 {
     // adding particle types:
     Particle::AddParticleType("pi+", mPion, +1);
@@ -45,12 +45,16 @@ void amogus()
     TH1F *InvMassH = new TH1F("InvMass", "Invariant Mass", 1000, 0., 9);
     // INVARIANT MASS BETWEEN PARTICLES WITH OPPOSITE CHARGE:
     TH1F *DiscInvMassH = new TH1F("DiscInvMass", "Discord Invariant Mass", 1000, 0., 9);
+		DiscInvMassH->Sumw2();
     // INVARIANT MASS BETWEEN PARTICLES WITH SAME CHARGE:
     TH1F *ConcInvMassH = new TH1F("ConcInvMass", "Concord Invariant Mass", 1000, 0., 9);
+		ConcInvMassH->Sumw2();
     // INVARIANT MASS BETWEEN PI+ AND KA-:
     TH1F *PpKmInvMassH = new TH1F("Pi+Ka-InvMass", "Pi+ and K- / Pi- and K+ Invariant Mass", 1000, 0., 9);
+		PpKmInvMassH->Sumw2();
     // INVARIANT MASS BETWEEN PI+ AND KA+:
     TH1F *PpKpInvMassH = new TH1F("Pi+Ka+InvMass", "Pi+ and K+ / Pi- and K- Invariant Mass", 1000, 0., 9);
+		PpKpInvMassH->Sumw2();
     // INVARIANT MASS BETWEEN PARTICLES DESCENDING FROM THE SAME K*:
     TH1F *DecayInvMass = new TH1F("DecayInvMass", "Decay particles invariant mass", 1000, 0., 2.);
 
@@ -59,7 +63,7 @@ void amogus()
     // event loop:
     for (int event{0}; event < 100000; ++event)
     {
-        std::cout << "SKIBIDI SIGMA, YOU'RE THE T O P SIGMA" <<'\n';
+        //std::cout << "SKIBIDI SIGMA, YOU'RE THE T O P SIGMA" <<'\n';
         // particle loop:
         for (int generation{0}; generation < 100; ++generation)
         {
@@ -144,7 +148,7 @@ void amogus()
 
                 // filling the kinetic properties histograms for the generated particles:
             }
-            TypesH->Fill(RndParticle.getIndex());
+            TypesH->Fill(RndParticle.getIndex() + 1);
             AnglesH->Fill(phi, theta);
             MomentumH->Fill(std::sqrt(RndMomentum.px * RndMomentum.px + RndMomentum.py * RndMomentum.py + RndMomentum.pz * RndMomentum.pz));
             TransMomentumH->Fill(std::sqrt(RndMomentum.px * RndMomentum.px + RndMomentum.py * RndMomentum.py));
@@ -165,7 +169,7 @@ void amogus()
         {
             if (EventParticles[p1].getIndex() != 6) // excluding kstar
             {
-                int p2{p1};
+                int p2{p1 + 1};
                 while (EventParticles[p2].getIndex() != -1)
                 {
                     if (EventParticles[p2].getIndex() != 6) // excluding kstar
@@ -244,7 +248,18 @@ void amogus()
 
     std::cout << "Done with canvases.\n";
 
-    TFile *sigmagraphs = new TFile("outpoopoo.root", "RECREATE");
+    TFile *sigmagraphs = new TFile("Output.root", "RECREATE");
+
+		TypesH->Write();
+		AnglesH->Write();
+		MomentumH->Write();
+		TransMomentumH->Write();
+		EnergyH->Write();
+		InvMassH->Write();
+		ConcInvMassH->Write();
+		DiscInvMassH->Write();
+		PpKpInvMassH->Write();
+		PpKmInvMassH->Write();
     DecayInvMass->Write();
     sigmagraphs->Close();
 }
